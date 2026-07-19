@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>date archive</title>
+<style>
+  :root {
+    --paper: #f7f6f3;
+    --ink: #141414;
+    --meta: #8a8a86;
+    --red: #8b0f1e;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Roboto Mono", Menlo, monospace;
+    --body: -apple-system, "Helvetica Neue", Arial, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { background: var(--paper); }
+  body {
+    font-family: var(--body);
+    color: var(--ink);
+    max-width: 26rem;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 6rem;
+    line-height: 1.7;
+    position: relative;
+    -webkit-font-smoothing: antialiased;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: url("form.png") center 34% / min(80vw, 26rem) auto no-repeat;
+    opacity: 0.30;
+    pointer-events: none;
+    z-index: -1;
+  }
+  .back {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    color: var(--meta);
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 2.5rem;
+  }
+  .back:hover, .back:focus-visible { color: var(--red); outline: none; }
+  .stamp {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    color: var(--meta);
+    text-transform: uppercase;
+  }
+  .date {
+    font-family: var(--mono);
+    font-size: clamp(2.2rem, 10vw, 3rem);
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    margin-top: 0.75rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .tear {
+    height: 9px;
+    margin: 2rem 0;
+    background:
+      linear-gradient(-45deg, transparent 6px, var(--ink) 0) 0 0 / 12px 9px repeat-x,
+      linear-gradient(45deg, transparent 6px, var(--ink) 0) 6px 0 / 12px 9px repeat-x;
+    opacity: 0.12;
+  }
+  h2.headline {
+    font-size: 1.1rem;
+    font-weight: 600;
+    line-height: 1.55;
+    margin-bottom: 1.1rem;
+  }
+  .context { font-size: 0.9rem; color: #3c3c3a; margin-bottom: 2rem; }
+  .source {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+  }
+  .source a {
+    color: var(--red);
+    text-decoration: none;
+    border-bottom: 1px solid currentColor;
+    padding-bottom: 1px;
+  }
+  .source a:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
+  footer {
+    margin-top: 4.5rem;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    color: var(--meta);
+  }
+  nav.index { margin-top: 0.5rem; }
+  nav.index a {
+    display: block;
+    padding: 1.1rem 1.6rem 1.1rem 0;
+    border-top: 1px solid rgba(20,20,20,0.14);
+    color: var(--ink);
+    text-decoration: none;
+    position: relative;
+    transition: background 0.15s ease;
+  }
+  nav.index a:last-child { border-bottom: 1px solid rgba(20,20,20,0.14); }
+  nav.index a::after {
+    content: "\2192";
+    font-family: var(--mono);
+    position: absolute;
+    right: 0.1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--meta);
+    transition: color 0.15s ease, right 0.15s ease;
+  }
+  nav.index a:hover, nav.index a:focus-visible {
+    background: rgba(247,246,243,0.6);
+    outline: none;
+  }
+  nav.index a:hover::after, nav.index a:focus-visible::after {
+    color: var(--red);
+    right: 0;
+  }
+  nav.index .d {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--red);
+    display: block;
+    margin-bottom: 0.2rem;
+    font-variant-numeric: tabular-nums;
+  }
+  nav.index .t { font-size: 0.88rem; line-height: 1.5; display: block; }
+  @media (prefers-reduced-motion: reduce) {
+    nav.index a, nav.index a::after { transition: none; }
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const ENTRIES = [
+  {
+    "id": "k2",
+    "date": "2025-06-17",
+    "title": "UK members of parliament vote to decriminalise abortion in England and Wales",
+    "context": "The vote followed a series of prosecutions of women under an 1861 law, including one acquitted a few weeks earlier.",
+    "source": "Al Jazeera",
+    "url": "https://www.aljazeera.com/news/2025/6/17/uk-votes-to-decriminalise-abortion-after-prosecutions-of-some-women"
+  },
+  {
+    "id": "k1",
+    "date": "2025-05-08",
+    "title": "A London jury acquits Nicola Packer after a four and a half year investigation into her abortion",
+    "context": "She had been prescribed the pills remotely under lockdown rules and was arrested from her hospital bed. The judge asked prosecutors to reflect on the public interest of such cases.",
+    "source": "The Guardian",
+    "url": "https://www.theguardian.com/uk-news/2025/may/08/anger-ordeal-woman-accused-abortion-nicola-packer"
+  },
+  {
+    "id": "t2",
+    "date": "2026-07-02",
+    "title": "Women's groups in Taiwan call for a gender impact assessment before an emergency contraception tracking policy proceeds",
+    "context": "Around ninety countries allow pharmacy access to the pill without a prescription. Taiwan has debated the change since 2016.",
+    "source": "Amnesty International Taiwan",
+    "url": "https://www.amnesty.tw/node/24616"
+  },
+  {
+    "id": "t1",
+    "date": "2026-06-25",
+    "title": "Taiwan's FDA moves to place two emergency contraceptives and one abortion drug under a supply tracking system",
+    "context": "The drugs contain levonorgestrel, ulipristal acetate and misoprostol. Emergency contraception works within a 72 hour window.",
+    "source": "CNA",
+    "url": "https://www.cna.com.tw/news/ahel/202606260278.aspx"
+  },
+  {
+    "id": "e2",
+    "date": "2026-01-20",
+    "title": "Taiwan's assisted reproduction law heads toward its largest amendment since 2007",
+    "context": "Single women and lesbian couples may finally be allowed to use their own frozen eggs.",
+    "source": "The Reporter",
+    "url": "https://www.twreporter.org/a/taiwan-donor-conceived-people-right-to-know-their-origins"
+  },
+  {
+    "id": "c2",
+    "date": "2026-02-02",
+    "title": "Men line up for new male contraceptive trials, saying the side effects are acceptable",
+    "context": "Ten years after a male trial was halted over side effects that closely mirror those of the female pill.",
+    "source": "STAT News",
+    "url": "https://www.statnews.com/2026/02/02/male-birth-control-clinical-trial-volunteers-men-want-this/"
+  },
+  {
+    "id": "f2",
+    "date": "2024-08-14",
+    "title": "The first femtech unicorn faces criticism for being founded, led and funded by men",
+    "context": "A viral post noted that around two percent of venture funding goes to women.",
+    "source": "Digital Health",
+    "url": "https://www.digitalhealth.net/2024/08/flo-health-responds-to-viral-male-founded-femtech-funding-debate/"
+  },
+  {
+    "id": "f1",
+    "date": "2024-07-30",
+    "title": "Period tracking app Flo raises 200 million dollars and becomes the first femtech unicorn",
+    "context": "The same company settled with the US FTC in 2021 over sharing users' health data. Femtech is projected to reach 60 billion dollars by 2027.",
+    "source": "Flo Health",
+    "url": "https://flo.health/newsroom/flo-health-raises-over-200m"
+  },
+  {
+    "id": "e1",
+    "date": "2024-06-17",
+    "title": "In Taiwan, a single woman may freeze her eggs but not use them",
+    "context": "Under the Assisted Reproduction Act, frozen eggs are destroyed if she does not marry within ten years. Using them requires a husband and his consent.",
+    "source": "UDN",
+    "url": "https://ubrand.udn.com/ubrand/story/123655/7985815"
+  },
+  {
+    "id": "u2",
+    "date": "2023-09-22",
+    "title": "The mother in the Nebraska case receives a two year sentence",
+    "context": "She had bought the pills online for her daughter. The key evidence, again, was their private messages.",
+    "source": "Courthouse News",
+    "url": "https://www.courthousenews.com/prison-time-for-nebraska-mom-who-aided-daughters-late-term-abortion/"
+  },
+  {
+    "id": "u1",
+    "date": "2023-07-20",
+    "title": "A Nebraska teenager is sentenced to ninety days in jail after ending a pregnancy",
+    "context": "Private Facebook messages between her and her mother, handed over by Meta under a warrant, served as evidence. She was seventeen at the time.",
+    "source": "Axios",
+    "url": "https://www.axios.com/2023/07/20/nebraska-teen-abortion-jail"
+  },
+  {
+    "id": "p1",
+    "date": "2023-07-13",
+    "title": "The US approves the first over the counter birth control pill",
+    "context": "The pill has existed since 1960. Buying it without a prescription took until now.",
+    "source": "US FDA",
+    "url": "https://www.fda.gov/news-events/press-announcements/fda-approves-first-nonprescription-daily-oral-contraceptive"
+  },
+  {
+    "id": "n1",
+    "date": "2023-05-22",
+    "title": "Most women in China still give birth without pain relief, five years into a national epidural initiative",
+    "context": "Hospital consent culture often places the signature in a family member's hands. In one widely reported case, a woman in labour was refused a caesarean by her family.",
+    "source": "The China Project",
+    "url": "https://thechinaproject.com/2023/05/22/embrace-the-pain-epidural-use-in-china-remains-low/"
+  },
+  {
+    "id": "w1",
+    "date": "2022-09-07",
+    "title": "Apple Watch adds wrist temperature sensing and retrospective ovulation estimates",
+    "context": "The watch samples skin temperature every five seconds during sleep. Announced eleven weeks after Roe fell.",
+    "source": "Apple Newsroom",
+    "url": "https://www.apple.com/newsroom/2022/09/apple-reveals-apple-watch-series-8-and-the-new-apple-watch-se/"
+  },
+  {
+    "id": "d1",
+    "date": "2022-06-24",
+    "title": "The US Supreme Court overturns Roe v. Wade",
+    "context": "Abortion regulation returns to the states. Digital traces, searches, messages and app data become potential evidence.",
+    "source": "SCOTUSblog",
+    "url": "https://www.scotusblog.com/2022/06/supreme-court-overturns-constitutional-right-to-abortion/"
+  },
+  {
+    "id": "s1",
+    "date": "2022-01-01",
+    "title": "Premenstrual dysphoric disorder enters the WHO's classification of diseases",
+    "context": "The DSM listed it as needing further study from 1987 to 2013. One manual now files it as a mental disorder, the other as a gynecological disease. The systems do not agree on where in the body it happens.",
+    "source": "Acta Obstetricia et Gynecologica Scandinavica",
+    "url": "https://obgyn.onlinelibrary.wiley.com/doi/10.1111/aogs.14360"
+  },
+  {
+    "id": "fl",
+    "date": "2021-01-13",
+    "title": "Period app Flo settles with the FTC over sharing users' health data with Facebook and Google",
+    "context": "The app promised privacy while disclosing pregnancy and cycle events to analytics firms. Over 100 million people used it.",
+    "source": "US FTC",
+    "url": "https://www.ftc.gov/news-events/news/press-releases/2021/01/developer-popular-womens-fertility-tracking-app-settles-ftc-allegations-it-misled-consumers-about"
+  },
+  {
+    "id": "m1",
+    "date": "2019-10-29",
+    "title": "Missouri's state health director kept a spreadsheet tracking the menstrual periods of Planned Parenthood patients",
+    "context": "The spreadsheet was compiled from medical records to identify failed abortions. It surfaced during legal discovery.",
+    "source": "NBC News",
+    "url": "https://www.nbcnews.com/news/us-news/missouri-health-director-tracked-menstrual-periods-planned-parenthood-patients-n1073701"
+  },
+  {
+    "id": "c1",
+    "date": "2016-10-27",
+    "title": "A male hormonal contraceptive trial is halted over side effects",
+    "context": "Mood changes, acne, pain at the injection site. The list closely mirrors what women on the pill have reported for decades. The female versions stayed on the market.",
+    "source": "NPR",
+    "url": "https://www.npr.org/sections/health-shots/2016/11/03/500549503/male-birth-control-study-killed-after-men-complain-about-side-effects"
+  },
+  {
+    "id": "a1",
+    "date": "2014-09-25",
+    "title": "Apple ships a health app that tracks sodium, selenium and blood alcohol, but not periods",
+    "context": "Menstrual tracking arrived a year later, after public pressure.",
+    "source": "The Verge",
+    "url": "https://www.theverge.com/2014/9/25/6844021/apple-promised-an-expansive-health-app-so-why-cant-i-track"
+  },
+  {
+    "id": "h2",
+    "date": "1993-06-10",
+    "title": "US law requires NIH funded clinical research to include women",
+    "context": "Sixteen years after the exclusion guideline. The FDA lifted its own restriction the same year.",
+    "source": "NIH",
+    "url": "https://www.ncbi.nlm.nih.gov/books/NBK236535/"
+  },
+  {
+    "id": "h1",
+    "date": "1977-09-01",
+    "title": "The US FDA recommends excluding women of childbearing potential from early drug trials",
+    "context": "Issued in September 1977, the guideline shaped sixteen years of research. Many drug doses were established on male bodies by default.",
+    "source": "Embryo Project Encyclopedia",
+    "url": "https://embryo.asu.edu/pages/general-considerations-clinical-evaluation-drugs-1977-united-states-food-and-drug"
+  }
+];
+
+function fmt(d) { return d.replaceAll("-", "."); }
+
+function renderEntry(e) {
+  const srcLine = e.url
+    ? `<a href="${e.url}" target="_blank" rel="noopener">${e.source} \u2197</a>`
+    : `<span>${e.source}</span>`;
+  const ctx = e.context ? `<p class="context">${e.context}</p>` : "";
+  return `
+    <a class="back" href="#">\u2190 all dates</a>
+    <p class="stamp">no. ${e.id}</p>
+    <h1 class="date">${fmt(e.date)}</h1>
+    <div class="tear" role="presentation"></div>
+    <h2 class="headline">${e.title}</h2>
+    ${ctx}
+    <p class="source">${srcLine}</p>
+    <footer>printed elsewhere. kept here.</footer>
+  `;
+}
+
+function renderIndex() {
+  const sorted = [...ENTRIES].sort((a, b) => b.date.localeCompare(a.date));
+  const items = sorted.map(e =>
+    `<a href="#${e.id}"><span class="d">${fmt(e.date)}</span><span class="t">${e.title}</span></a>`
+  ).join("");
+  return `
+    <p class="stamp">index \u00b7 ${sorted.length} dates</p>
+    <div class="tear" role="presentation"></div>
+    <nav class="index">${items}</nav>
+  `;
+}
+
+function route() {
+  const id = location.hash.slice(1);
+  const entry = ENTRIES.find(e => e.id === id);
+  document.getElementById("app").innerHTML = entry ? renderEntry(entry) : renderIndex();
+  window.scrollTo(0, 0);
+}
+
+window.addEventListener("hashchange", route);
+route();
+</script>
+</body>
+</html>
