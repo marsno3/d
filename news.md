@@ -1,14 +1,14 @@
-# date archive — 新聞資料
+# date archive — news data
 
 <!--
-格式（每一則）：
-  ## id 日期
-  標題（一段）
-  脈絡（一段，可省略）
-  [來源名稱](網址)
+Format (per entry):
+  ## id date
+  title (one paragraph)
+  context (one paragraph, optional)
+  [source name](url)
 
-id 用兩個字元、不重複。改完存檔，跑 python3 build.py 即可。
-排序不用管，build 會自動依日期新到舊排。
+id: two characters, must be unique. After editing, save and run python3 build.py.
+No need to sort manually — build orders entries newest to oldest by date.
 -->
 
 ## k2 2025-06-17

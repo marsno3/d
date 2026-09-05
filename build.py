@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 """
-date archive 建置腳本。
+date archive build script.
 
-流程：
-  1. 讀 news.md（唯一要編輯的檔案）
-  2. 產生 index.html（版本 B：mesh 圖當背景浮水印）
-  3. 產生 qr/*.png 和 qr/manifest.json
+Flow:
+  1. Read news.md (the only file you need to edit)
+  2. Generate index.html (version B: mesh image as background watermark)
+  3. Generate qr/*.png and qr/manifest.json
 
-用法：
-  改完 news.md 之後，跑一次：
+Usage:
+  After editing news.md, run once:
       python3 build.py
-  然後把整個資料夾 git push 到 GitHub Pages。
+  Then git push the whole folder to GitHub Pages.
 
-第一次使用前：把下面的 BASE_URL 改成你的 GitHub Pages 網址（結尾要有斜線）。
-需要：pip install "qrcode[pil]"
+Before first use: change BASE_URL below to your GitHub Pages URL (must end with a slash).
+Requires: pip install "qrcode[pil]"
 """
 
 import re
@@ -22,9 +22,9 @@ import sys
 from pathlib import Path
 from PIL import Image
 
-# ========= 只有這一行要改 =========
-BASE_URL = "https://marsno3.github.io/d/"   # repo 名越短，QR 越好掃
-# =================================
+# ========= Only this line needs to change =========
+BASE_URL = "https://marsno3.github.io/d/"   # the shorter the repo name, the easier the QR scans
+# ====================================================
 
 HERE = Path(__file__).parent
 NEWS = HERE / "news.md"
@@ -33,17 +33,17 @@ QR_DIR = HERE / "qr"
 
 
 def parse_news(text):
-    """把 news.md 拆成 entry 清單。"""
+    """Split news.md into a list of entries."""
     entries = []
-    # 依 "## id 日期" 切段
+    # Split into blocks on "## id date"
     blocks = re.split(r'^##\s+', text, flags=re.M)[1:]
     for b in blocks:
         lines = [l.rstrip() for l in b.splitlines()]
         header = lines[0].split()
         eid, date = header[0], header[1]
-        # 剩下的非空行：標題、脈絡、來源連結
+        # Remaining non-empty lines: title, context, source link
         body = [l for l in lines[1:] if l.strip()]
-        # 來源是最後一個 markdown 連結
+        # The source is the last markdown link
         source, url = "", ""
         title_lines, context_lines = [], []
         for l in body:
@@ -66,24 +66,24 @@ def parse_news(text):
 
 
 def check(entries):
-    """基本檢查：id 不重複、日期格式、連結存在。"""
+    """Basic checks: unique ids, date format, link presence."""
     ids, dates_ok = set(), True
     for e in entries:
         if e["id"] in ids:
-            sys.exit(f"錯誤：id 重複 -> {e['id']}")
+            sys.exit(f"Error: duplicate id -> {e['id']}")
         ids.add(e["id"])
         if not re.match(r'^\d{4}-\d{2}-\d{2}$', e["date"]):
-            sys.exit(f"錯誤：{e['id']} 日期格式要 YYYY-MM-DD -> {e['date']}")
+            sys.exit(f"Error: {e['id']} date must be YYYY-MM-DD -> {e['date']}")
         if not e["title"]:
-            sys.exit(f"錯誤：{e['id']} 沒有標題")
-    print(f"檢查通過：{len(entries)} 則，id 無重複")
+            sys.exit(f"Error: {e['id']} has no title")
+    print(f"Check passed: {len(entries)} entries, no duplicate ids")
 
 
 def build_qr(entries):
     try:
         import qrcode
     except ImportError:
-        sys.exit('缺少 qrcode，請先跑： pip install "qrcode[pil]"')
+        sys.exit('Missing qrcode, please run: pip install "qrcode[pil]"')
     QR_DIR.mkdir(exist_ok=True)
     for old in QR_DIR.glob("*.png"):
         old.unlink()
@@ -97,10 +97,10 @@ def build_qr(entries):
         qr.add_data(url)
         qr.make(fit=True)
         if qr.version > 3:
-            sys.exit(f"錯誤：{e['id']} 的 URL 太長 (v{qr.version})，請縮短 BASE_URL")
+            sys.exit(f"Error: {e['id']} URL too long (v{qr.version}), please shorten BASE_URL")
         img = qr.make_image(fill_color="white", back_color="black").convert("L")
         if img.size[0] > 128:
-            sys.exit(f"錯誤：{e['id']} QR {img.size[0]}px 超過 128px")
+            sys.exit(f"Error: {e['id']} QR {img.size[0]}px exceeds 128px")
         rgba = Image.merge("RGBA", (img, img, img, img))
         canvas = Image.new("RGBA", (384, 1280), (0, 0, 0, 0))
         canvas.paste(rgba, (384 - img.size[0] - 16, 1280 - img.size[1] - 16))
@@ -109,7 +109,7 @@ def build_qr(entries):
                          "file": f"qr/{e['id']}.png", "px": img.size[0]})
     (QR_DIR / "manifest.json").write_text(
         json.dumps(manifest, indent=2, ensure_ascii=False))
-    print(f"QR 產生完成：{len(manifest)} 張（都在 128px 內）")
+    print(f"QR generation complete: {len(manifest)} images (all within 128px)")
 
 
 HTML = r'''<!DOCTYPE html>
@@ -305,17 +305,17 @@ route();
 def build_html(entries):
     data = json.dumps(entries, ensure_ascii=False, indent=2)
     OUT_HTML.write_text(HTML.replace("__DATA__", data))
-    print(f"index.html 產生完成")
+    print(f"index.html generated")
 
 
 def main():
     if not NEWS.exists():
-        sys.exit("找不到 news.md")
+        sys.exit("news.md not found")
     entries = parse_news(NEWS.read_text())
     check(entries)
     build_html(entries)
     build_qr(entries)
-    print("\n完成。git push 後就會更新網站。")
+    print("\nDone. The site will update after git push.")
 
 
 if __name__ == "__main__":
